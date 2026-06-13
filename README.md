@@ -1,16 +1,15 @@
 # Emotion Classification using NLP 🚀
 
-This repository contains an end-to-end Natural Language Processing (NLP) project that classifies text sentences into different emotional categories (e.g., joy, sadness, anger, love, etc.). 
+This repository contains an end-to-end Natural Language Processing (NLP) project that classifies text sentences into six different emotional categories (e.g., joy, sadness, anger, love, surprise, fear). 
 
-The project evaluates multiple text vectorization techniques and machine learning classifiers to find the best performing pipeline.
+The project evaluates multiple text vectorization techniques (Bag of Words, TF-IDF) and machine learning classifiers to determine the most accurate and balanced pipeline.
 
 ## 📊 Project Workflow & Features
 
 1. **Data Preprocessing & Cleaning**:
-   * Handled missing values (if any).
    * Converted text to lowercase.
-   * Removed punctuations, numbers, HTML tags, URLs, and emojis.
-   * Tokenized text and removed English stopwords using `nltk`.
+   * Removed punctuations, numbers, and emojis using custom Python functions.
+   * Tokenized text and filtered out English stopwords using `nltk`.
 
 2. **Feature Extraction Techniques**:
    * **Bag of Words (BoW)** using `CountVectorizer`
@@ -18,35 +17,42 @@ The project evaluates multiple text vectorization techniques and machine learnin
 
 3. **Machine Learning Models Evaluated**:
    * **Multinomial Naive Bayes** (Baseline Model)
-   * **Logistic Regression** (Optimized with higher iterations)
+   * **Logistic Regression** (Tested with both BoW and TF-IDF)
+   * **Support Vector Machines (LinearSVC)**
 
 ---
 
-## 📈 Performance & Results
+## 📈 Performance & Results Comparison
 
-We compared different combinations of Vectorizers and Classifiers. Here is the breakdown of the accuracy achieved:
+We systematically compared different combinations of Vectorizers and Classifiers. Here is the final breakdown of the performance achieved across 3,200 test samples:
 
-| Vectorizer | Classifier | Accuracy | Status |
-|------------|------------|----------|--------|
-| Bag of Words (BoW) | Multinomial Naive Bayes | 77.16% | decent baseline |
-| **Bag of Words (BoW)** | **Logistic Regression** | **88.87%** | 🏆 **Best Performer** |
-| TF-IDF | Logistic Regression | 85.03% | Good balance |
+| Feature Extraction | Classifier Model | Accuracy | Status / Notes |
+|--------------------|------------------|----------|----------------|
+| Bag of Words (BoW) | Multinomial Naive Bayes | 77.16% | Weakest baseline; struggled heavily with minority classes. |
+| TF-IDF Vectorizer  | Logistic Regression     | 85.03% | Good performance, but lower recall on specific emotions. |
+| Bag of Words (BoW) | Logistic Regression     | 88.87% | Extremely strong and reliable performance. |
+| **Bag of Words (BoW)** | **Linear SVM (LinearSVC)** | **88.97%** | 🏆 **Ultimate Winner (Best Accuracy & Balanced F1-Scores)** |
 
 ### Key Insights:
-* **Logistic Regression + BoW** emerged as the winner with **~89% accuracy**.
-* Transitioning from Naive Bayes to Logistic Regression significantly improved the recall for minority/complex emotion classes (specifically Class 3).
+* **The Winner**: **Linear SVM with Bag of Words** achieved the highest accuracy of **88.97%**.
+* **Class Balance**: Moving from Naive Bayes to Linear SVM dramatically resolved the class imbalance issue. For instance, the F1-score for the toughest minority class (Class 3) jumped from a poor **0.13** to a highly impressive **0.76**.
 
 ---
 
 ## 💻 Sample Prediction Pipeline
 
-The final trained model is capable of predicting emotions from completely raw/new text inputs. 
+The trained Linear SVM pipeline is fully capable of processing raw text inputs and accurately predicting the underlying emotion:
 
 ```python
-# Example Prediction using TF-IDF + Logistic Regression
-my_text = ["I feel so sad and depressed today."]
-my_text_tfidf = tfidf.transform(my_text)
+# Example Prediction using the top-performing pipeline
+from sklearn.svm import LinearSVC
 
-new_pred = model_lr_tfidf.predict(my_text_tfidf)
-print(f"Predicted emotion: {reverse_emotion_numbers[new_pred[0]]}")
-# Output: Predicted emotion: sadness
+# Input raw text
+my_text = ["I feel so sad and depressed today."]
+my_text_bow = cv.transform(my_text)
+
+# Model Prediction
+predicted_class = model_svm.predict(my_text_bow)
+print(f"Predicted Emotion: {reverse_emotion_numbers[predicted_class[0]]}")
+
+# Output: Predicted Emotion: sadness
